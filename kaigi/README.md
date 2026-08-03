@@ -1,26 +1,29 @@
-# AI会議 (Claude ⇄ Codex 討論ツール)
+# AI会議 (Claude / Codex / Gemini 討論ツール)
 
-お題・悩み・アイデアを1つ投げると、Claude と Codex が1対1で討論し、
-最後に結論・次のアクションをまとめて Markdown の議事録として保存するスクリプト。
+お題・悩み・アイデアを1つ投げると、複数のAI(既定では Claude・Codex・Gemini)が
+順番に討論し、最後に結論・次のアクションをまとめて Markdown の議事録として保存するスクリプト。
 
 ## 前提条件
 
-ローカル端末(このスクリプトを実行するマシン)に以下がインストール・ログイン済みであること。
+ローカル端末(このスクリプトを実行するマシン)に、参加させたいAIのCLIが
+インストール・ログイン済みであること。
 
 - [Claude Code CLI](https://code.claude.com/docs) — `claude` コマンドが PATH に通っている
 - [Codex CLI](https://developers.openai.com/codex) — `codex` コマンドが PATH に通っている
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) — `gemini` コマンドが PATH に通っている
 
 それぞれ単体で動作するか事前に確認しておくと安全:
 
 ```bash
 claude -p "こんにちは、動作確認です"
 codex exec "こんにちは、動作確認です"
+gemini -p "こんにちは、動作確認です"
 ```
 
 ## 使い方
 
 ```bash
-# お題を直接指定
+# お題を直接指定(既定: Claude → Codex → Gemini の順で討論)
 python3 kaigi/run_kaigi.py "転職すべきか今の会社に残るべきか悩んでいる"
 
 # ファイルから読み込む(長文の悩みを事前にまとめておく場合)
@@ -31,19 +34,26 @@ python3 kaigi/run_kaigi.py
 
 # 討論のラウンド数を増やす(既定は2往復)
 python3 kaigi/run_kaigi.py "新規事業のアイデア検証" --rounds 4
+
+# 参加するAIを絞る/順番を変える(先頭が司会役になる)
+python3 kaigi/run_kaigi.py "お題" --agents claude,gemini
+python3 kaigi/run_kaigi.py "お題" --agents gemini,codex,claude
 ```
 
-実行すると、Claude のオープニング発言 → Codex のオープニング発言 → 指定ラウンド数分の
-往復討論 → Claude による結論・まとめ、の順にターミナルへ逐次表示され、
+実行すると、参加者が指定順にオープニング発言 → 指定ラウンド数分の討論 →
+先頭の参加者による結論・まとめ、の順にターミナルへ逐次表示され、
 `kaigi/transcripts/<日時>.md` に議事録として保存される。
 
 ## 討論の進め方
 
-- Claude と Codex はどちらも「ただ同意するのではなく、前提・リスク・別の切り口を
+- 参加AIは全員「ただ同意するのではなく、前提・リスク・別の切り口を
   積極的に指摘する」よう指示されている。
-- Codex 側は `codex exec --sandbox read-only` で実行しており、ファイル編集や
-  リポジトリ探索は行わずテキストでの発言のみを行う。
-- 結論のまとめ(一致点・対立点・次のアクション)は最後に Claude が司会役として生成する。
+- 各AIは自分より前に発言した参加者の発言をすべて読んだ上で発言する
+  (2番目以降の参加者は、それまでの全発言を踏まえて意見を述べる)。
+- Codex は `codex exec --sandbox read-only`、Gemini は `gemini --approval-mode plan`
+  で実行しており、どちらもファイル編集やリポジトリ探索は行わずテキストでの発言のみを行う。
+- 結論のまとめ(一致点・対立点・次のアクション)は `--agents` で指定した
+  先頭のAI(既定では Claude)が司会役として最後に生成する。
 
 ## 議事録の扱いについて
 
@@ -53,10 +63,11 @@ python3 kaigi/run_kaigi.py "新規事業のアイデア検証" --rounds 4
 
 ## トラブルシューティング
 
-- `claude` / `codex` コマンドが見つからない: PATH を確認するか、それぞれの CLI を
-  再インストールする。
-- `codex` 実行時にフラグ関連のエラーが出る: CLI のバージョンによってオプション名が
-  変わっている可能性がある。`codex exec --help` で現在のオプションを確認し、
-  `run_kaigi.py` 内の `call_codex()` のコマンドライン引数を合わせて修正する。
-- 応答が空になる: それぞれのCLI単体(`claude -p "test"` / `codex exec "test"`)が
-  正常に動作するか確認する。
+- `claude` / `codex` / `gemini` コマンドが見つからない: PATH を確認するか、
+  それぞれの CLI を再インストールする。
+- 実行時にフラグ関連のエラーが出る: CLI のバージョンによってオプション名が
+  変わっている可能性がある。`codex exec --help` / `gemini --help` で現在の
+  オプションを確認し、`run_kaigi.py` 内の該当する `call_*()` 関数の
+  コマンドライン引数を合わせて修正する。
+- 応答が空になる: それぞれのCLI単体(`claude -p "test"` / `codex exec "test"` /
+  `gemini -p "test"`)が正常に動作するか確認する。
