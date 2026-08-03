@@ -1,1 +1,3 @@
 kaigi/transcripts/*.md
+__pycache__/
+*.pyc
