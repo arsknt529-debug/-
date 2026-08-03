@@ -27,6 +27,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TRANSCRIPTS_DIR = REPO_ROOT / "kaigi" / "transcripts"
+BUSINESS_FILE_DEFAULT = REPO_ROOT / "kaigi" / "business.md"
 
 DISPLAY_NAMES = {
     "claude": "Claude",
@@ -40,17 +41,27 @@ def die(msg: str) -> None:
     sys.exit(1)
 
 
-def charter(display_names: list[str]) -> str:
+def charter(display_names: list[str], business_context: str | None) -> str:
     names = "、".join(display_names)
-    return (
+    parts = []
+    if business_context:
+        parts.append(
+            "【事業コンテキスト(最優先・絶対厳守)】\n"
+            f"{business_context}\n\n"
+            "この会議で扱ってよいのは上記の事業に関することだけである。"
+            "上記に関係しない一般論・雑談・無関係な話題は一切扱わないこと。"
+        )
+    parts.append(
         f"あなたは「AI会議」と呼ばれる、{names} による複数AI討論に参加しています。\n"
-        "目的は、ユーザーが投げかけた悩み・アイデアをあらゆる角度から検討し、鋭く深掘りすることです。\n\n"
+        "目的は、経営者であるユーザーが投げかけたアイデア・課題を、一切の妥協なく検証することです。\n\n"
         "ルール:\n"
-        "- 他の参加者の意見にただ同意せず、見落としている前提・リスク・反例・別の切り口を積極的に指摘する。\n"
-        "- 抽象論に逃げず、具体的な提案や次の一手にまで踏み込む。\n"
+        "- 各参加者は、同業でまもなく上場するであろう、本気でこの事業を潰しにかかる競合他社になりきって発言する。\n"
+        "  馴れ合いの同意・気遣い・忖度は一切禁止。弱点・穴・勝ち筋のなさを容赦なく突く。\n"
+        "- 抽象論に逃げず、具体的な数字・実行可能性・タイムラインの観点まで踏み込む。\n"
         "- 発言は要点を絞り、目安300〜600字程度で述べる。\n"
         "- これはテキストでの討論であり、コード編集やファイル操作、リポジトリ探索は不要。与えられた文脈だけで発言する。"
     )
+    return "\n\n".join(parts)
 
 
 def call_claude(prompt: str, cmd: str) -> str:
@@ -183,6 +194,11 @@ def main() -> None:
     parser.add_argument("--codex-cmd", default="codex", help="codex コマンド名/パス(既定: codex)")
     parser.add_argument("--gemini-cmd", default="gemini", help="gemini コマンド名/パス(既定: gemini)")
     parser.add_argument("--out", help="議事録の保存先パス(既定: kaigi/transcripts/<timestamp>.md)")
+    parser.add_argument(
+        "--business-file",
+        default=str(BUSINESS_FILE_DEFAULT),
+        help="事業コンテキストファイルのパス(既定: kaigi/business.md)。存在すれば全発言に絶対厳守の前提として注入される。",
+    )
     args = parser.parse_args()
 
     cmd_for = {"claude": args.claude_cmd, "codex": args.codex_cmd, "gemini": args.gemini_cmd}
@@ -206,8 +222,19 @@ def main() -> None:
     if not topic:
         die("お題が空です。")
 
+    business_path = Path(args.business_file)
+    business_context = None
+    if business_path.exists():
+        business_context = business_path.read_text(encoding="utf-8").strip() or None
+    if not business_context:
+        print(
+            f"[警告] {business_path} が見つからないか空です。事業スコープの制約なしで進行します。\n"
+            "  kaigi/business.md.example をコピーして kaigi/business.md を作成し、事業内容を記入してください。",
+            file=sys.stderr,
+        )
+
     display_names = [DISPLAY_NAMES[p] for p in participants]
-    charter_text = charter(display_names)
+    charter_text = charter(display_names, business_context)
 
     started = datetime.datetime.now()
     TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -253,10 +280,10 @@ def main() -> None:
     synthesis_prompt = (
         f"{charter_text}\n\n【お題】\n{topic}\n\n【全議論】\n{history}\n\n---\n"
         f"あなたの立場: {DISPLAY_NAMES[chair]}\n"
-        "これで議論は終了です。司会として以下を簡潔にまとめてください:\n"
-        "1. 参加者間で一致した点\n"
-        "2. 意見が分かれた点・トレードオフ\n"
-        "3. 結論のたたき台\n"
+        "これで議論は終了です。司会として、敵対的な視点から出た攻撃を踏まえて以下を簡潔にまとめてください:\n"
+        "1. 参加者(競合視点)が共通して突いてきた弱点・リスク\n"
+        "2. 意見が分かれた論点・トレードオフ\n"
+        "3. それでも通すべき結論のたたき台\n"
         "4. 次に取るべき具体的なアクション(箇条書き)"
     )
     synthesis = CALLERS[chair](synthesis_prompt, cmd_for[chair])

@@ -1,3 +1,4 @@
 kaigi/transcripts/*.md
+kaigi/business.md
 __pycache__/
 *.pyc
