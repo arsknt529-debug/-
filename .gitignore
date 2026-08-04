@@ -1,4 +1,5 @@
 kaigi/transcripts/*.md
 kaigi/business.md
+sales_agent/product.md
 __pycache__/
 *.pyc
