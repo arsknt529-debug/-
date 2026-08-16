@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Xcount Fitness{% endblock %} | Xcount Fitness 評価システム</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="brand-mark">X</span>
+      <span class="brand-text">Xcount Fitness <small>評価システム</small></span>
+    </a>
+  </div>
+</header>
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <p>Xcount Fitness &mdash; お客様の変化・現状評価システム</p>
+</footer>
+</body>
+</html>

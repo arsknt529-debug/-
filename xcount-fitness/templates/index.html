@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}お客様一覧{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>お客様一覧</h1>
+    <div class="subtitle">登録済み {{ clients|length }} 名</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>新規お客様登録</h3>
+  <form method="post" action="{{ url_for('create_client') }}">
+    <div class="grid grid-4">
+      <div class="field">
+        <label for="name">お名前 *</label>
+        <input type="text" id="name" name="name" required placeholder="山田 太郎">
+      </div>
+      <div class="field">
+        <label for="gender">性別</label>
+        <select id="gender" name="gender">
+          <option value="">未選択</option>
+          {% for value, label in gender_choices %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="birth_date">生年月日</label>
+        <input type="date" id="birth_date" name="birth_date">
+      </div>
+      <div class="field">
+        <label for="height_cm">身長 (cm)</label>
+        <input type="number" step="0.1" id="height_cm" name="height_cm" placeholder="170.0">
+      </div>
+    </div>
+    <div class="field">
+      <label for="memo">メモ</label>
+      <textarea id="memo" name="memo" placeholder="目標・注意事項など"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">登録する</button>
+  </form>
+</div>
+
+{% if clients %}
+<div class="client-list">
+  {% for c in clients %}
+  <div class="client-card">
+    <div>
+      <div class="name"><a href="{{ url_for('client_detail', client_id=c['id']) }}">{{ c['name'] }}</a></div>
+      <div class="meta">
+        {% if c['gender'] %}{{ gender_labels.get(c['gender'], c['gender']) }} ・ {% endif %}
+        測定回数: {{ c['measurement_count'] }}回
+        {% if c['last_measured_at'] %} ・ 最終測定日: {{ c['last_measured_at'] }}{% endif %}
+      </div>
+    </div>
+    <div class="actions">
+      <a class="btn btn-sm" href="{{ url_for('client_detail', client_id=c['id']) }}">詳細・グラフ</a>
+      <a class="btn btn-sm btn-primary" href="{{ url_for('new_measurement', client_id=c['id']) }}">測定を記録</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">まだお客様が登録されていません。上のフォームから登録してください。</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ client['name'] }} - 基本情報編集{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('index') }}">お客様一覧</a> /
+  <a href="{{ url_for('client_detail', client_id=client['id']) }}">{{ client['name'] }}</a> / 基本情報編集
+</div>
+<h1>基本情報編集</h1>
+
+<div class="panel">
+  <form method="post" action="{{ url_for('edit_client', client_id=client['id']) }}">
+    <div class="grid grid-4">
+      <div class="field">
+        <label for="name">お名前 *</label>
+        <input type="text" id="name" name="name" required value="{{ client['name'] }}">
+      </div>
+      <div class="field">
+        <label for="gender">性別</label>
+        <select id="gender" name="gender">
+          <option value="">未選択</option>
+          {% for value, label in gender_choices %}
+          <option value="{{ value }}" {% if client['gender'] == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="birth_date">生年月日</label>
+        <input type="date" id="birth_date" name="birth_date" value="{{ client['birth_date'] or '' }}">
+      </div>
+      <div class="field">
+        <label for="height_cm">身長 (cm)</label>
+        <input type="number" step="0.1" id="height_cm" name="height_cm" value="{{ client['height_cm'] or '' }}">
+      </div>
+    </div>
+    <div class="field">
+      <label for="memo">メモ</label>
+      <textarea id="memo" name="memo">{{ client['memo'] or '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">保存する</button>
+    <a class="btn" href="{{ url_for('client_detail', client_id=client['id']) }}">キャンセル</a>
+  </form>
+</div>
+
+<div class="panel">
+  <h3>お客様の削除</h3>
+  <p class="fieldset-hint">削除すると、このお客様の測定記録もすべて削除されます。この操作は取り消せません。</p>
+  <form method="post" action="{{ url_for('delete_client', client_id=client['id']) }}"
+        onsubmit="return confirm('{{ client['name'] }} さんのデータをすべて削除します。よろしいですか?');">
+    <button type="submit" class="btn btn-danger">お客様を削除する</button>
+  </form>
+</div>
+{% endblock %}

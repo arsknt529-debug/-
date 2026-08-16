@@ -2,3 +2,5 @@ kaigi/transcripts/*.md
 kaigi/business.md
 __pycache__/
 *.pyc
+xcount-fitness/data/*.sqlite3
+xcount-fitness/.venv/
