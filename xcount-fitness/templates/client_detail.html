@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}{{ client['name'] }}{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{{ url_for('index') }}">お客様一覧</a> / {{ client['name'] }}</div>
+
+<div class="page-header">
+  <div>
+    <h1>{{ client['name'] }} さん</h1>
+    <div class="subtitle">
+      {% if client['gender'] %}{{ {'male':'男性','female':'女性','other':'その他'}.get(client['gender'], client['gender']) }} ・{% endif %}
+      {% if client['birth_date'] %}生年月日 {{ client['birth_date'] }} ・{% endif %}
+      {% if client['height_cm'] %}身長 {{ client['height_cm'] }} cm{% endif %}
+    </div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('edit_client', client_id=client['id']) }}">基本情報編集</a>
+    <a class="btn btn-primary" href="{{ url_for('new_measurement', client_id=client['id']) }}">+ 測定を記録</a>
+  </div>
+</div>
+
+{% if not measurements %}
+<div class="panel empty-state">
+  まだ測定記録がありません。「測定を記録」から最初の評価を入力してください。
+</div>
+{% else %}
+
+<div class="stat-cards">
+  <div class="stat-card">
+    <div class="label">体重</div>
+    <div class="value">{{ latest['weight_kg']|fmt }} kg</div>
+    {% if previous and latest['weight_kg'] is not none and previous['weight_kg'] is not none %}
+    {% set d = latest['weight_kg'] - previous['weight_kg'] %}
+    <div class="delta {{ 'up' if d > 0 else ('down' if d < 0 else 'flat') }}">前回比 {{ '%+.1f'|format(d) }} kg</div>
+    {% endif %}
+  </div>
+  <div class="stat-card">
+    <div class="label">体脂肪率</div>
+    <div class="value">{{ latest['body_fat_percent']|fmt }} %</div>
+    {% if previous and latest['body_fat_percent'] is not none and previous['body_fat_percent'] is not none %}
+    {% set d = latest['body_fat_percent'] - previous['body_fat_percent'] %}
+    <div class="delta {{ 'up' if d > 0 else ('down' if d < 0 else 'flat') }}">前回比 {{ '%+.1f'|format(d) }} %</div>
+    {% endif %}
+  </div>
+  <div class="stat-card">
+    <div class="label">BMI</div>
+    <div class="value">{{ latest['bmi']|fmt }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">姿勢スコア(低いほど良好)</div>
+    <div class="value">{{ latest['posture_score'] if latest['posture_score'] is not none else '-' }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">最終測定日</div>
+    <div class="value" style="font-size:1.1rem;">{{ latest['measured_at'] }}</div>
+  </div>
+</div>
+
+<h2>体重・体脂肪率の推移</h2>
+<div class="panel">
+  <div class="chart-wrap"><canvas id="chartWeight"></canvas></div>
+</div>
+
+<h2>各部位の周囲サイズの推移</h2>
+<div class="panel">
+  <p class="fieldset-hint">凡例をクリックすると表示・非表示を切り替えられます。</p>
+  <div class="chart-wrap tall"><canvas id="chartCircumference"></canvas></div>
+</div>
+
+<h2>関節可動域(ROM)評価 &mdash; 最新値</h2>
+<div class="panel">
+  {% if latest['rom'] %}
+  <div class="chart-wrap tall"><canvas id="chartRom"></canvas></div>
+  {% else %}
+  <div class="empty-state">最新の測定にROMデータがありません。</div>
+  {% endif %}
+</div>
+
+<h2>筋力評価の推移</h2>
+<div class="panel">
+  <p class="fieldset-hint">凡例をクリックすると表示・非表示を切り替えられます。</p>
+  <div class="chart-wrap tall"><canvas id="chartStrength"></canvas></div>
+</div>
+
+<h2>姿勢評価</h2>
+<div class="grid grid-2">
+  <div class="panel">
+    <h3>最新の姿勢チェック ({{ latest['measured_at'] }})</h3>
+    <table>
+      <tbody>
+      {% for key, label in posture_items %}
+      <tr>
+        <td>{{ label }}</td>
+        <td><span class="badge badge-{{ latest['posture'].get(key, '') }}">{{ latest['posture'].get(key)|posture_label }}</span></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>姿勢スコアの推移</h3>
+    <div class="chart-wrap"><canvas id="chartPosture"></canvas></div>
+  </div>
+</div>
+
+<h2>測定履歴</h2>
+<div class="panel table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>測定日</th>
+        <th>体重(kg)</th>
+        <th>体脂肪率(%)</th>
+        <th>BMI</th>
+        <th>姿勢スコア</th>
+        <th>メモ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in measurements %}
+      <tr>
+        <td>{{ m['measured_at'] }}</td>
+        <td>{{ m['weight_kg']|fmt }}</td>
+        <td>{{ m['body_fat_percent']|fmt }}</td>
+        <td>{{ m['bmi']|fmt }}</td>
+        <td>{{ m['posture_score'] if m['posture_score'] is not none else '-' }}</td>
+        <td>{{ m['memo'] or '' }}</td>
+        <td>
+          <a class="btn btn-sm" href="{{ url_for('edit_measurement', client_id=client['id'], measurement_id=m['id']) }}">編集</a>
+          <form class="inline-form" method="post" action="{{ url_for('delete_measurement', client_id=client['id'], measurement_id=m['id']) }}" onsubmit="return confirm('この測定記録を削除します。よろしいですか?');">
+            <button type="submit" class="btn btn-sm btn-danger">削除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endif %}
+
+{% if measurements %}
+<script>
+const CHART_DATA = {{ chart_data_json|safe }};
+const gridColor = "rgba(255,255,255,0.06)";
+const textColor = "#9aa3b2";
+Chart.defaults.color = textColor;
+Chart.defaults.borderColor = gridColor;
+Chart.defaults.font.family = "'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif";
+
+const palette = ["#ff5a3c", "#35c98f", "#4d9dff", "#ffb648", "#c77dff", "#ff8fab", "#5fd0ff", "#a3e635", "#f472b6", "#facc15", "#38bdf8", "#fb923c"];
+
+new Chart(document.getElementById("chartWeight"), {
+  type: "line",
+  data: {
+    labels: CHART_DATA.labels,
+    datasets: [
+      {
+        label: "体重 (kg)",
+        data: CHART_DATA.weight,
+        borderColor: "#ff5a3c",
+        backgroundColor: "#ff5a3c",
+        yAxisID: "y",
+        tension: 0.25,
+        spanGaps: true,
+      },
+      {
+        label: "体脂肪率 (%)",
+        data: CHART_DATA.body_fat_percent,
+        borderColor: "#4d9dff",
+        backgroundColor: "#4d9dff",
+        yAxisID: "y1",
+        tension: 0.25,
+        spanGaps: true,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: "index", intersect: false },
+    scales: {
+      y: { type: "linear", position: "left", title: { display: true, text: "体重 (kg)" }, grid: { color: gridColor } },
+      y1: { type: "linear", position: "right", title: { display: true, text: "体脂肪率 (%)" }, grid: { drawOnChartArea: false } },
+    },
+  },
+});
+
+(function () {
+  const sites = {{ circumference_sites|tojson }};
+  const datasets = sites.map(function (site, i) {
+    return {
+      label: site[1],
+      data: CHART_DATA.circumference[site[0]],
+      borderColor: palette[i % palette.length],
+      backgroundColor: palette[i % palette.length],
+      tension: 0.25,
+      spanGaps: true,
+      hidden: !["waist", "hip", "chest"].includes(site[0]),
+    };
+  });
+  new Chart(document.getElementById("chartCircumference"), {
+    type: "line",
+    data: { labels: CHART_DATA.labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: { y: { title: { display: true, text: "cm" } } },
+    },
+  });
+})();
+
+{% if latest['rom'] %}
+new Chart(document.getElementById("chartRom"), {
+  type: "bar",
+  data: {
+    labels: CHART_DATA.rom_labels,
+    datasets: [{
+      label: "可動域 (度)",
+      data: CHART_DATA.rom_keys.map(function (k) { return CHART_DATA.rom_latest[k]; }),
+      backgroundColor: "#35c98f",
+    }],
+  },
+  options: {
+    indexAxis: "y",
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { x: { title: { display: true, text: "度" } } },
+    plugins: { legend: { display: false } },
+  },
+});
+{% endif %}
+
+(function () {
+  const items = {{ strength_items|tojson }};
+  const datasets = items.map(function (item, i) {
+    return {
+      label: item[1] + " (" + item[2] + ")",
+      data: CHART_DATA.strength[item[0]],
+      borderColor: palette[i % palette.length],
+      backgroundColor: palette[i % palette.length],
+      tension: 0.25,
+      spanGaps: true,
+      hidden: !["grip_r", "grip_l"].includes(item[0]),
+    };
+  });
+  new Chart(document.getElementById("chartStrength"), {
+    type: "line",
+    data: { labels: CHART_DATA.labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+    },
+  });
+})();
+
+new Chart(document.getElementById("chartPosture"), {
+  type: "line",
+  data: {
+    labels: CHART_DATA.labels,
+    datasets: [{
+      label: "姿勢スコア(合計)",
+      data: CHART_DATA.posture_score,
+      borderColor: "#c77dff",
+      backgroundColor: "#c77dff",
+      tension: 0.25,
+      spanGaps: true,
+    }],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true, title: { display: true, text: "スコア(低いほど良好)" } } },
+  },
+});
+</script>
+{% endif %}
+{% endblock %}

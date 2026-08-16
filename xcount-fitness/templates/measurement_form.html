@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ client['name'] }} - 測定記録{% endblock %}
+{% set sf = measurement.skinfold if measurement else {} %}
+{% set cf = measurement.circumference if measurement else {} %}
+{% set rom = measurement.rom if measurement else {} %}
+{% set st = measurement.strength if measurement else {} %}
+{% set po = measurement.posture if measurement else {} %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('index') }}">お客様一覧</a> /
+  <a href="{{ url_for('client_detail', client_id=client['id']) }}">{{ client['name'] }}</a> /
+  {{ '測定記録の編集' if measurement else '測定記録の入力' }}
+</div>
+<h1>{{ '測定記録の編集' if measurement else '測定を記録' }}</h1>
+<div class="subtitle" style="color:var(--text-muted); margin-bottom:16px;">{{ client['name'] }} さん</div>
+
+<form method="post" action="{{ url_for('update_measurement', client_id=client['id'], measurement_id=measurement['id']) if measurement else url_for('create_measurement', client_id=client['id']) }}">
+
+  <fieldset>
+    <legend>基本情報</legend>
+    <div class="grid grid-3">
+      <div class="field">
+        <label for="measured_at">測定日 *</label>
+        <input type="date" id="measured_at" name="measured_at" required
+               value="{{ measurement['measured_at'] if measurement else today }}">
+      </div>
+      <div class="field">
+        <label for="weight_kg">体重 (kg)</label>
+        <input type="number" step="0.1" id="weight_kg" name="weight_kg"
+               value="{{ measurement['weight_kg'] if measurement and measurement['weight_kg'] is not none else '' }}">
+      </div>
+      <div class="field">
+        <label for="body_fat_percent">体脂肪率 (%) 手入力・任意</label>
+        <input type="number" step="0.1" id="body_fat_percent" name="body_fat_percent"
+               value="{{ measurement['body_fat_percent'] if measurement and measurement['body_fat_percent'] is not none else '' }}"
+               placeholder="未入力なら皮下脂肪厚から自動推定">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>各部位の皮下脂肪厚(キャリパー法)</legend>
+    <p class="fieldset-hint">単位: mm。7部位すべて入力すると体脂肪率が自動推定されます(Jackson &amp; Pollock法)。</p>
+    <div class="grid grid-4">
+      {% for key, label in skinfold_sites %}
+      <div class="field">
+        <label for="skinfold_{{ key }}">{{ label }}</label>
+        <div class="field-row">
+          <input type="number" step="0.1" id="skinfold_{{ key }}" name="skinfold_{{ key }}" value="{{ sf.get(key, '') }}">
+          <span class="unit">mm</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>各部位の周囲サイズ</legend>
+    <p class="fieldset-hint">単位: cm</p>
+    <div class="grid grid-4">
+      {% for key, label in circumference_sites %}
+      <div class="field">
+        <label for="circumference_{{ key }}">{{ label }}</label>
+        <div class="field-row">
+          <input type="number" step="0.1" id="circumference_{{ key }}" name="circumference_{{ key }}" value="{{ cf.get(key, '') }}">
+          <span class="unit">cm</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>関節可動域(ROM)評価</legend>
+    <p class="fieldset-hint">単位: 度</p>
+    <div class="grid grid-4">
+      {% for key, label in rom_items %}
+      <div class="field">
+        <label for="rom_{{ key }}">{{ label }}</label>
+        <div class="field-row">
+          <input type="number" step="1" id="rom_{{ key }}" name="rom_{{ key }}" value="{{ rom.get(key, '') }}">
+          <span class="unit">度</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>筋力評価</legend>
+    <div class="grid grid-4">
+      {% for key, label, unit in strength_items %}
+      <div class="field">
+        <label for="strength_{{ key }}">{{ label }}</label>
+        <div class="field-row">
+          <input type="number" step="0.1" id="strength_{{ key }}" name="strength_{{ key }}" value="{{ st.get(key, '') }}">
+          <span class="unit">{{ unit }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>姿勢評価</legend>
+    <div class="grid grid-3">
+      {% for key, label in posture_items %}
+      <div class="field">
+        <label for="posture_{{ key }}">{{ label }}</label>
+        <select id="posture_{{ key }}" name="posture_{{ key }}">
+          <option value="">未評価</option>
+          {% for value, level_label in posture_levels %}
+          <option value="{{ value }}" {% if po.get(key) == value %}selected{% endif %}>{{ level_label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>メモ</legend>
+    <div class="field">
+      <textarea name="memo" placeholder="トレーナーからのコメント、次回への申し送りなど">{{ measurement['memo'] if measurement else '' }}</textarea>
+    </div>
+  </fieldset>
+
+  <div class="section-actions">
+    <a class="btn" href="{{ url_for('client_detail', client_id=client['id']) }}">キャンセル</a>
+    <button type="submit" class="btn btn-primary">{{ '更新する' if measurement else '記録する' }}</button>
+  </div>
+</form>
+{% endblock %}
