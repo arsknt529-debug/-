@@ -20,3 +20,12 @@ cd xcount-fitness
 pip install -r requirements.txt
 python3 app.py
 ```
+
+# XCOUNT HEALTH LAB
+
+「私の身体を知る」4つの健康セルフチェック（Next.js）。詳細は [`health-lab/README.md`](health-lab/README.md)、
+設計は [`docs/health-lab/DESIGN.md`](docs/health-lab/DESIGN.md) を参照。
+
+```bash
+cd health-lab && npm install && npm run dev
+```
