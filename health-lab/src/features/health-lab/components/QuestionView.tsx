@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { Question } from '../content/types';
 import { Header } from './Header';
 import { CheckIcon } from './icons';
+import { SafetyNotice } from './ResultView';
 
 interface QuestionViewProps {
   title: string;
@@ -16,10 +17,12 @@ interface QuestionViewProps {
   onBack: () => void;
   onExit: () => void;
   nextLabel?: string;
+  /** 選んだ回答に応じて表示する安全上の案内 */
+  alert?: string;
 }
 
 /** 1画面1質問の共通ビュー（単一選択・複数選択） */
-export function QuestionView({ title, question, index, total, value, onChange, onNext, onBack, onExit, nextLabel }: QuestionViewProps) {
+export function QuestionView({ title, question, index, total, value, onChange, onNext, onBack, onExit, nextLabel, alert }: QuestionViewProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const selected = Array.isArray(value) ? value : value ? [value] : [];
   const answered = selected.length > 0;
@@ -90,6 +93,13 @@ export function QuestionView({ title, question, index, total, value, onChange, o
             );
           })}
         </fieldset>
+        {alert && (
+          <div className="hl-section">
+            <SafetyNotice title="すぐに119番へ">
+              <p>{alert}</p>
+            </SafetyNotice>
+          </div>
+        )}
         <div className="hl-actions">
           <div className="hl-actions-row">
             <button type="button" className="hl-btn hl-btn-secondary hl-btn-grow" onClick={onBack}>

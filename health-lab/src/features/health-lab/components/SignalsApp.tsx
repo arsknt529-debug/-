@@ -2,18 +2,18 @@
 
 import { useMemo, useState } from 'react';
 import { ROUTES } from '../content/links';
-import { emergencySigns, symptoms, type SymptomId } from '../content/signals';
+import { symptoms, type SymptomId } from '../content/signals';
 import type { Answers } from '../content/types';
 import { buildSignalsQuestions, buildSignalsResult, signalsText } from '../engine/signals';
 import { Disclaimer } from './Disclaimer';
-import { EmergencyScreen } from './EmergencyScreen';
 import { Header } from './Header';
-import { AlertIcon, CheckIcon, PhoneIcon } from './icons';
+import { AlertIcon, CheckIcon } from './icons';
+import { Illustration } from './Illustration';
 import { QuestionView } from './QuestionView';
 import { ResultView, SafetyNotice } from './ResultView';
 import { useScreenHistory } from './useScreenHistory';
 
-type Screen = 'intro' | 'select' | `q:${number}` | 'result' | 'emergency';
+type Screen = 'intro' | `q:${number}` | 'result';
 
 export function SignalsApp({ enabled }: { enabled: boolean }) {
   if (!enabled) return <SignalsComingSoon />;
@@ -25,17 +25,30 @@ function SignalsComingSoon() {
     <div className="hl-page">
       <Header title="CARD 03 ・ 不調のサイン" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <section className="hl-hero">
+        <Illustration name="signals" className="hl-illust-hero" />
+        <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             その不調は、
             <br />
             身体からの小さな手紙。
           </h1>
-          <p className="hl-lead">このセルフチェックは、医療専門職による安全性の確認が終わり次第公開します。もうしばらくお待ちください。</p>
+          <p className="hl-lead">専門家による確認が終わり次第、公開します。</p>
         </section>
-        <p className="hl-note">心配な症状がある場合は、医療機関にご相談ください。緊急の症状がある場合は、ためらわずに119番に電話してください。</p>
+        <p className="hl-hint">
+          <InfoUrgent />
+        </p>
       </main>
     </div>
+  );
+}
+
+/** 急を要する症状についての短い案内（専用ページは設けず、1行で伝える） */
+function InfoUrgent() {
+  return (
+    <>
+      <AlertIcon size={18} style={{ flex: 'none', marginTop: 3, color: 'var(--hl-danger)' }} />
+      <span>{signalsText('signals.urgent')}</span>
+    </>
   );
 }
 
@@ -54,52 +67,11 @@ function SignalsFlow() {
     navigate('intro');
   };
 
-  if (screen === 'emergency') {
-    return <EmergencyScreen onReselect={back} />;
-  }
-
-  if (screen === 'select') {
-    const toggle = (id: SymptomId) => setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-    return (
-      <div className="hl-page">
-        <Header title="CARD 03 ・ 不調のサイン" back={back} />
-        <main className="hl-main">
-          <section className="hl-hero">
-            <h1 className="hl-question-text" tabIndex={-1} id="hl-select">
-              気になる不調を選んでください
-            </h1>
-            <p className="hl-caption" style={{ textAlign: 'left' }}>
-              当てはまるものをすべて選んでください
-            </p>
-          </section>
-          <fieldset className="hl-options" aria-labelledby="hl-select">
-            <div className="hl-options-grid">
-              {symptoms.map((s) => {
-                const on = selected.includes(s.id);
-                return (
-                  <button key={s.id} type="button" className="hl-option" aria-pressed={on} onClick={() => toggle(s.id)}>
-                    <span className="hl-option-mark hl-option-mark-square">{on ? <CheckIcon /> : null}</span>
-                    <span>{s.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-          <div className="hl-actions">
-            <button type="button" className="hl-btn hl-btn-primary" disabled={selected.length === 0} onClick={() => navigate('q:0')}>
-              {selected.length === 0 ? '選ぶと次へ進めます' : `${selected.length}つを選んで次へ`}
-            </button>
-            <p className="hl-caption">原因や病名を判定するものではありません。</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   if (screen.startsWith('q:')) {
     const index = Number(screen.slice(2));
     const question = questions[index];
     if (!question) return null;
+    const chosen = question.options.find((o) => o.id === answers[question.id]);
     return (
       <QuestionView
         title="不調のサインを知る"
@@ -108,17 +80,10 @@ function SignalsFlow() {
         total={questions.length}
         value={answers[question.id]}
         onChange={(value) => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
-        onNext={() => {
-          const chosen = question.options.find((o) => o.id === answers[question.id]);
-          // 緊急の選択肢が選ばれたら、以降の質問を出さずに緊急案内へ
-          if (chosen?.emergency) {
-            navigate('emergency');
-            return;
-          }
-          navigate(index + 1 < questions.length ? `q:${index + 1}` : 'result');
-        }}
+        onNext={() => navigate(index + 1 < questions.length ? `q:${index + 1}` : 'result')}
         onBack={back}
         onExit={restart}
+        alert={chosen?.emergency ? signalsText('signals.urgent_inline') : undefined}
       />
     );
   }
@@ -129,6 +94,7 @@ function SignalsFlow() {
       <ResultView
         contentName="不調のサインを知る"
         heading="身体からの手紙"
+        illustration="signals"
         result={{ ...result, safety: undefined }}
         onRetry={restart}
         labels={{
@@ -139,17 +105,18 @@ function SignalsFlow() {
         }}
         top={
           <>
+            {result.triage.level === 'emergency' && (
+              <SafetyNotice title="すぐに119番へ">
+                <p>{signalsText('signals.urgent_inline')}</p>
+              </SafetyNotice>
+            )}
             {result.crisis && (
               <SafetyNotice title={result.crisis.title}>
                 <p>{result.crisis.body}</p>
                 <p style={{ fontWeight: 700 }}>{result.crisis.line}</p>
-                <a className="hl-btn hl-btn-danger" href="tel:119" style={{ fontSize: 16, minHeight: 52 }}>
-                  <PhoneIcon size={18} />
-                  今すぐ危険なときは119
-                </a>
               </SafetyNotice>
             )}
-            {result.safety && (
+            {result.safety && result.triage.level !== 'emergency' && (
               <SafetyNotice title={careFirst ? '医療機関への相談をおすすめします' : '続く場合は医療機関へ'}>
                 {result.safety.map((s) => (
                   <p key={s}>{s}</p>
@@ -188,43 +155,46 @@ function SignalsFlow() {
     );
   }
 
-  // intro：最初に緊急症状を確認する
+  // intro：イラスト＋気になる不調の選択
+  const toggle = (id: SymptomId) => setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   return (
     <div className="hl-page">
       <Header title="CARD 03 ・ 不調のサイン" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <section className="hl-hero">
+        <Illustration name="signals" className="hl-illust-hero" />
+        <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             その不調は、
             <br />
             身体からの小さな手紙。
           </h1>
-          <p className="hl-lead">疲れ、むくみ、睡眠の悩み。いつの間にか当たり前になっている不調を、一度振り返ってみませんか？</p>
+          <p className="hl-lead">当たり前になっている不調を、振り返ってみませんか？</p>
         </section>
-        <section className="hl-section">
-          <div className="hl-safety">
-            <h2 className="hl-safety-title" id="hl-gate">
-              <AlertIcon size={18} />
-              はじめに確認させてください
-            </h2>
-            <p>今、次のような症状はありますか？</p>
-            <ul className="hl-list-dot" style={{ fontSize: 15 }}>
-              {emergencySigns.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-            <div className="hl-grid-2" style={{ marginTop: 6 }}>
-              <button type="button" className="hl-btn hl-btn-danger" style={{ fontSize: 16, minHeight: 52 }} onClick={() => navigate('emergency')}>
-                ある
-              </button>
-              <button type="button" className="hl-btn hl-btn-secondary" style={{ minHeight: 52 }} onClick={() => navigate('select')}>
-                ない
-              </button>
-            </div>
+        <p className="hl-hint hl-hint-urgent">
+          <InfoUrgent />
+        </p>
+        <section className="hl-section" aria-labelledby="hl-select">
+          <h2 className="hl-section-title" id="hl-select">
+            気になる不調を選んでください<span className="hl-caption">（複数可）</span>
+          </h2>
+          <div className="hl-options-grid">
+            {symptoms.map((s) => {
+              const on = selected.includes(s.id);
+              return (
+                <button key={s.id} type="button" className="hl-option" aria-pressed={on} onClick={() => toggle(s.id)}>
+                  <span className="hl-option-mark hl-option-mark-square">{on ? <CheckIcon /> : null}</span>
+                  <span>{s.label}</span>
+                </button>
+              );
+            })}
           </div>
         </section>
         <Disclaimer />
-        <div style={{ height: 32 }} />
+        <div className="hl-actions">
+          <button type="button" className="hl-btn hl-btn-primary" disabled={selected.length === 0} onClick={() => navigate('q:0')}>
+            {selected.length === 0 ? '選ぶと次へ進めます' : `${selected.length}つを選んで次へ`}
+          </button>
+        </div>
       </main>
     </div>
   );

@@ -9,6 +9,8 @@ import { loadGift } from '../lib/giftStorage';
 import { Disclaimer } from './Disclaimer';
 import { GiftSection } from './GiftSection';
 import { Header } from './Header';
+import { InfoIcon } from './icons';
+import { Illustration } from './Illustration';
 import { QuestionView } from './QuestionView';
 import { ResultView } from './ResultView';
 import { useScreenHistory } from './useScreenHistory';
@@ -74,6 +76,7 @@ export function FutureApp() {
       <ResultView
         contentName="未来の健康を考える"
         heading="未来の自分に贈りたいこと"
+        illustration="future"
         result={result}
         onRetry={restart}
         labels={{ understanding: 'この結果について', gift: '今日から始められる小さな行動' }}
@@ -133,34 +136,26 @@ export function FutureApp() {
     <div className="hl-page">
       <Header title="CARD 04 ・ 未来の健康" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <section className="hl-visual" style={{ display: 'block', padding: '32px 24px', minHeight: 0 }}>
-          <span className="hl-eyebrow">A GIFT FOR 10 YEARS LATER</span>
-          <h1 className="hl-title" style={{ marginTop: 12, color: 'var(--hl-text)' }}>
+        <Illustration name="future" className="hl-illust-hero" />
+        <section className="hl-hero hl-hero-tight">
+          <h1 className="hl-title">
             10年後の自分に、
             <br />
             何を贈ろう。
           </h1>
-          <p className="hl-lead" style={{ marginTop: 12 }}>
-            未来の健康は、今日の小さな選択から。今の生活を振り返り、これからの自分のためにできることを探しましょう。
-          </p>
-        </section>
-        <section className="hl-section">
-          <h2 className="hl-section-title">5つの生活習慣をふり返ります</h2>
-          <ol style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {domains.map((d, i) => (
-              <li key={d.id} className="hl-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: '14px 16px' }}>
-                <span style={{ fontFamily: 'var(--hl-font-display)', width: 24 }}>{String(i + 1).padStart(2, '0')}</span>
-                <span style={{ fontSize: 15 }}>{d.name}</span>
+          <p className="hl-lead">今の生活を振り返り、未来の自分のためにできることを探しましょう。</p>
+          <ul className="hl-chips" aria-label="振り返る5つの生活習慣">
+            {domains.map((d) => (
+              <li key={d.id} className="hl-chip">
+                {d.name}
               </li>
             ))}
-          </ol>
+          </ul>
         </section>
-        <div className="hl-note">
-          <strong>点数はつけません</strong>
-          <span>
-            「健康年齢」や将来のリスクを計算するものではありません。今大切にできていることと、これから見直したいことを一緒に整理します。「わからない」「答えたくない」も選べます。
-          </span>
-        </div>
+        <p className="hl-hint">
+          <InfoIcon style={{ flex: 'none', marginTop: 3 }} />
+          <span>点数はつけません。「わからない」「答えたくない」も選べます。</span>
+        </p>
         <Disclaimer />
         <div className="hl-actions">
           <button type="button" className="hl-btn hl-btn-primary" onClick={() => navigate('q:0')}>

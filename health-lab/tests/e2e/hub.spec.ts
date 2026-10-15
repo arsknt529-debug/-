@@ -14,6 +14,8 @@ test('一覧に4つのコンテンツが並び、それぞれに移動できる'
   for (const name of ['骨格・姿勢を知る', '健康診断を読み解く', '不調のサインを知る', '未来の健康を考える']) {
     await expect(nav.getByRole('link', { name: new RegExp(name) })).toBeVisible();
   }
+  await expect(page.getByText('医療診断ではありません。回答は保存・送信されません。')).toBeVisible();
+  await page.getByText('ご利用の前に').click();
   await expect(page.getByText('セルフチェックは医療診断ではありません。')).toBeVisible();
   await nav.getByRole('link', { name: /未来の健康を考える/ }).click();
   await expect(page).toHaveURL(/\/health-lab\/future$/);

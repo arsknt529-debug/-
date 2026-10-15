@@ -26,7 +26,7 @@ export const symptoms: { id: SymptomId; label: string }[] = [
   { id: 'other', label: 'その他の不調' },
 ];
 
-/** 最初に確認する緊急症状（いずれかがあれば通常のセルフチェックを中止し、119番を案内） */
+/** 急を要する症状（signals.urgent の文言と対応。監修時に一覧として確認する） */
 export const emergencySigns: string[] = [
   '突然の強い胸の痛み',
   '強い息苦しさ',
@@ -282,11 +282,9 @@ export const followUpQuestions: Record<SymptomId, Question[]> = {
 
 /** 文言（すべて専門家監修前の仮原稿。この機能は監修完了が公開条件） */
 export const signalsCopy: CopyDict = {
-  // 緊急
-  'signals.emergency.title': draft('すぐに救急車を呼んでください。'),
-  'signals.emergency.body': draft('急いで対応が必要な可能性があります。セルフチェックはここで中止します。'),
-  'signals.emergency.help': draft('近くに人がいれば、助けを求めてください。無理に一人で移動せず、その場で待つことをおすすめします。'),
-  'signals.emergency.unsure': draft('救急車を呼ぶか迷うときは、お住まいの地域の救急相談窓口（#7119 など。地域によって番号や有無が異なります）に相談できます。'),
+  // 急を要する症状（専用ページは設けず、短い案内で伝える）
+  'signals.urgent': draft('突然の強い胸の痛み・強い息苦しさ・片側のまひ・ろれつが回らないなどがあるときは、このチェックを使わずにすぐ119番へ。'),
+  'signals.urgent_inline': draft('息苦しさがあるときは、このチェックを中断して、すぐに119番に電話してください。迷うときは地域の救急相談窓口（#7119 など）へ。'),
 
   // こころの安全（要監修：窓口の名称・番号は監修時に最新情報を確認すること）
   'signals.crisis.title': draft('ひとりで抱えこまないでください。'),

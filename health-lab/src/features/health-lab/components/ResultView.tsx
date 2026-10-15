@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { commonCopy } from '../content/common';
+import type { IllustrationName } from '../content/illustrations';
 import type { CommonResult, NextStep } from '../content/types';
 import { Header } from './Header';
 import { AlertIcon, ChevronIcon, GiftIcon } from './icons';
+import { Illustration } from './Illustration';
 
 interface ResultViewProps {
   contentName: string;
@@ -24,6 +26,8 @@ interface ResultViewProps {
   /** NEXT STEP の後に差し込む要素 */
   bottom?: ReactNode;
   labels?: Partial<Record<'discovery' | 'understanding' | 'gift' | 'next', string>>;
+  /** 結果の上部に表示するイラスト */
+  illustration?: IllustrationName;
 }
 
 export function SafetyNotice({ title = '大切なお知らせ', children }: { title?: string; children: ReactNode }) {
@@ -93,6 +97,7 @@ export function ResultView({
   beforeNext,
   bottom,
   labels = {},
+  illustration,
 }: ResultViewProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -112,6 +117,7 @@ export function ResultView({
         }
       />
       <main className="hl-main">
+        {illustration && <Illustration name={illustration} className="hl-illust-banner" />}
         <div className="hl-hero" style={{ paddingTop: 16 }}>
           <span className="hl-caption" style={{ textAlign: 'left' }}>
             {contentName}

@@ -3,6 +3,7 @@ import type { CopyDict } from './types';
 
 export const commonCopy: CopyDict = {
   'common.disclaimer.title': draft('ご利用の前に'),
+  'common.disclaimer.short': draft('医療診断ではありません。回答は保存・送信されません。'),
   'common.disclaimer.notDiagnosis': draft('セルフチェックは医療診断ではありません。'),
   'common.disclaimer.consult': draft('心配な症状がある場合は、医療機関にご相談ください。'),
   'common.disclaimer.followDoctor': draft('医療機関から受診の指示がある場合は、その指示を優先してください。'),

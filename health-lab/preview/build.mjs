@@ -49,6 +49,9 @@ const js = result.outputFiles[0].text.replaceAll('</script', '<\\/script');
 const css = readFileSync(path.join(root, 'src/features/health-lab/styles/health-lab.css'), 'utf8');
 
 const html = `<title>XCOUNT HEALTH LAB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <style>
 /* XCOUNT HEALTH LAB は明るい1テーマの世界観で統一する（ダークモードでも同じ見た目） */
 :root { --page-bg: #FAF8F4; color-scheme: light; }

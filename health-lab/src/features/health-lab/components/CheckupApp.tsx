@@ -16,6 +16,7 @@ import {
 } from '../engine/checkup';
 import { Disclaimer } from './Disclaimer';
 import { Header } from './Header';
+import { Illustration } from './Illustration';
 import { ChevronIcon, InfoIcon } from './icons';
 import { ResultView } from './ResultView';
 import { TrendChart } from './TrendChart';
@@ -90,6 +91,7 @@ export function CheckupApp() {
         result={{ ...result, understanding: [] }}
         onRetry={restart}
         backHref={ROUTES.checkup}
+        illustration="checkup"
         labels={{ discovery: '01 ｜ 数字の意味を知る' }}
         discoverySlot={
           <article className="hl-card" aria-labelledby="hl-meaning">
@@ -157,13 +159,14 @@ export function CheckupApp() {
     <div className="hl-page">
       <Header title="CARD 02 ・ 健康診断" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <section className="hl-hero">
+        <Illustration name="checkup" className="hl-illust-hero" />
+        <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             その数字、
             <br />
             意味まで知っていますか？
           </h1>
-          <p className="hl-lead">健康診断の結果を、ただの記録で終わらせない。数字の意味を知り、身体への理解を深めましょう。</p>
+          <p className="hl-lead">健康診断の数字の意味を、やさしく読み解きます。</p>
         </section>
 
         <section className="hl-section" aria-label="3つの入り口">
@@ -189,7 +192,7 @@ export function CheckupApp() {
             <span className="hl-entry-key">A</span>
             <span className="hl-entry-body">
               <strong>健康診断表を撮影する</strong>
-              <span>準備中（画像の安全管理の確認後に提供します）</span>
+              <span>準備中</span>
             </span>
           </div>
         </section>
@@ -234,10 +237,11 @@ export function CheckupApp() {
           </div>
         </section>
 
-        <Disclaimer />
-        <p className="hl-note">
-          ここでは検査項目の一般的な意味をお伝えします。良い・悪いの判定は行いません。健診機関から「要再検査」「要精密検査・要受診」とされた場合は、その指示を優先してください。
+        <p className="hl-hint">
+          <InfoIcon style={{ flex: 'none', marginTop: 3 }} />
+          <span>良い・悪いの判定はしません。健診機関の指示を優先してください。</span>
         </p>
+        <Disclaimer />
         <div style={{ height: 32 }} />
       </main>
     </div>
