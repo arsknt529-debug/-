@@ -37,10 +37,23 @@ npm run test:e2e       # E2E（iPhone 表示、全フロー、外部通信なし
 npm run copy:export    # 監修依頼用の文言一覧 → copy-export/health-lab-copy.md
 ```
 
+## シーン写真の生成
+
+店舗・スタッフの実写真から、各画面用の写真（16:10、色味をそろえた WebP）を自動で作ります。
+
+```bash
+python3 scripts/build-images.py <元写真のフォルダ> public/health-lab/images            # 人物なし（リポジトリ用）
+python3 scripts/build-images.py <元写真のフォルダ> <出力フォルダ> --include-people       # スタッフ写真を含める
+```
+
+どの写真のどの部分を使うかは `scripts/build-images.py` の `SCENES` で設定します。
+このリポジトリは公開設定のため、スタッフ（人物）写真はコミットしていません。
+
 ## 共有用プレビュー（1ファイルの HTML）
 
 ```bash
-npm run preview:build   # → preview-dist/index.html
+npm run preview:build                                   # → preview-dist/index.html
+node preview/build.mjs out.html --photos <写真フォルダ>   # 別の写真セット（スタッフ写真入りなど）で作る
 ```
 
 本番と同じコンポーネントを1ページにまとめたものです（`next/link` などは `preview/shims/` の簡易版に置き換え、React は CDN から読み込みます）。

@@ -311,13 +311,12 @@
 }
 .hl-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* イラスト */
-.hl-illust { line-height: 0; overflow: hidden; }
-.hl-illust svg { display: block; width: 100%; height: auto; }
-.hl-illust-hero { margin: 12px 20px 0; border-radius: 28px; }
-.hl-illust-banner { margin: 4px 20px 0; border-radius: 22px; max-height: 150px; }
-.hl-illust-banner svg { margin-top: -4%; }
-.hl-illust-card { border-radius: 16px; margin: -4px -4px 4px; }
+/* 写真（店舗・スタッフの実写真から自動生成） */
+.hl-photo { overflow: hidden; background: var(--hl-beige); line-height: 0; }
+.hl-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hl-photo-hero { margin: 12px 20px 0; border-radius: 28px; aspect-ratio: 16 / 10; }
+.hl-photo-banner { margin: 4px 20px 0; border-radius: 22px; height: 150px; }
+.hl-photo-card { border-radius: 16px; margin: -4px -4px 4px; aspect-ratio: 16 / 9; }
 .hl-hero-tight { padding-top: 22px; gap: 10px; }
 .hl-header-brand { padding: 12px 20px 0; }
 
@@ -328,7 +327,7 @@
   border-radius: 20px; overflow: hidden; color: var(--hl-text); text-decoration: none;
 }
 .hl-tile[aria-disabled='true'] { opacity: 0.6; }
-.hl-tile-illust { aspect-ratio: 16 / 10; }
+.hl-tile-photo { aspect-ratio: 16 / 10; }
 .hl-tile-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .hl-tile-no { font-size: 10px; letter-spacing: 0.16em; font-weight: 700; color: var(--card-color); }
 .hl-tile-name { font-family: var(--hl-font-display); font-weight: 700; font-size: 14px; line-height: 1.45; letter-spacing: -0.01em; }

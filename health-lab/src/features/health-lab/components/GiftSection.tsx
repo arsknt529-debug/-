@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { domains, promises } from '../content/future';
 import { clearGift, createGift, dayNumber, GIFT_DAYS, loadGift, saveGift, type GiftRecord } from '../lib/giftStorage';
 import { HeartIcon } from './icons';
-import { Illustration } from './Illustration';
+import { Photo } from './Photo';
 
 /** 7日間のギフト（自分への小さな約束 ＋ 7日カレンダー） */
 export function GiftSection({ promiseOrder }: { promiseOrder?: string[] }) {
@@ -32,7 +32,7 @@ export function GiftSection({ promiseOrder }: { promiseOrder?: string[] }) {
   if (!record) {
     return (
       <section className="hl-card" id="gift" aria-labelledby="hl-gift-choose">
-        <Illustration name="gift" className="hl-illust-card" />
+        <Photo name="gift" size="sm" className="hl-photo-card" decorative />
         <h2 className="hl-card-label" id="hl-gift-choose">
           7日間のギフト
         </h2>

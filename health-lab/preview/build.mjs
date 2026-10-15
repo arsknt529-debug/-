@@ -6,7 +6,22 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
-const out = process.argv[2] ?? path.join(root, 'preview-dist', 'index.html');
+// 使い方: node preview/build.mjs [出力HTML] [--photos <写真フォルダ>]
+const argv = process.argv.slice(2);
+const photosIdx = argv.indexOf('--photos');
+const photosDir = photosIdx >= 0 ? path.resolve(argv[photosIdx + 1]) : path.join(root, 'public/health-lab/images');
+const positional = photosIdx >= 0 ? argv.filter((_, i) => i !== photosIdx && i !== photosIdx + 1) : argv;
+const out = positional[0] ?? path.join(root, 'preview-dist', 'index.html');
+
+// 写真は data URI として埋め込む（プレビューのページは外部の画像を読み込めないため）
+const photoNames = ['hub', 'posture', 'checkup', 'signals', 'future', 'gift'];
+const dataUri = (file) => `data:image/webp;base64,${readFileSync(path.join(photosDir, file)).toString('base64')}`;
+const photosModule = `
+const LG = ${JSON.stringify(Object.fromEntries(photoNames.map((n) => [n, dataUri(`${n}.webp`)])))};
+const SM = ${JSON.stringify(Object.fromEntries(photoNames.map((n) => [n, dataUri(`${n}-sm.webp`)])))};
+export const photoAlt = ${JSON.stringify({ hub: 'XCOUNT Fitness の受付と観葉植物', posture: '明るいトレーニングスペースとバランスボード', checkup: 'やわらかな灯りのデスクスペース', signals: '植物と窓辺のくつろげるコーナー', future: 'XCOUNT のスタッフ', gift: 'みずみずしい観葉植物' })};
+export function photoSrc(name, size = 'lg') { return (size === 'sm' ? SM : LG)[name]; }
+`;
 
 // React は CDN（UMD）のグローバルを使う
 const globals = {
@@ -20,6 +35,7 @@ const globals = {
         'module.exports = { jsx: (t, p, k) => window.React.createElement(t, k === undefined ? p : { ...p, key: k }), jsxs: (t, p, k) => window.React.createElement(t, k === undefined ? p : { ...p, key: k }), Fragment: window.React.Fragment }',
       loader: 'js',
     }));
+    b.onLoad({ filter: /content[\\/]photos\.ts$/ }, () => ({ contents: photosModule, loader: 'js' }));
     b.onResolve({ filter: /^next\/link$/ }, () => ({ path: path.join(here, 'shims/next-link.tsx') }));
     b.onResolve({ filter: /^next\/script$/ }, () => ({ path: path.join(here, 'shims/next-script.tsx') }));
     b.onResolve({ filter: /^@\// }, (a) => b.resolve('./' + a.path.slice(2), { resolveDir: path.join(root, 'src'), kind: a.kind }));

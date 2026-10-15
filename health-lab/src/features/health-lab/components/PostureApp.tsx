@@ -7,7 +7,7 @@ import type { Answers } from '../content/types';
 import { buildPostureResult } from '../engine/posture';
 import { Disclaimer } from './Disclaimer';
 import { Header } from './Header';
-import { Illustration } from './Illustration';
+import { Photo } from './Photo';
 import { InfoIcon } from './icons';
 import { QuestionView } from './QuestionView';
 import { ResultView } from './ResultView';
@@ -48,14 +48,14 @@ export function PostureApp() {
   }
 
   if (screen === 'result' && result) {
-    return <ResultView contentName="骨格・姿勢を知る" heading={<>今日、あなたが<br />見つけたこと</>} result={result} onRetry={restart} illustration="posture" />;
+    return <ResultView contentName="骨格・姿勢を知る" heading={<>今日、あなたが<br />見つけたこと</>} result={result} onRetry={restart} photo="posture" />;
   }
 
   return (
     <div className="hl-page">
       <Header title="CARD 01 ・ 骨格・姿勢" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <Illustration name="posture" className="hl-illust-hero" />
+        <Photo name="posture" className="hl-photo-hero" priority />
         <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             あなたの身体には、

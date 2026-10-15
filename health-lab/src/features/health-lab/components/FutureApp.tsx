@@ -10,7 +10,7 @@ import { Disclaimer } from './Disclaimer';
 import { GiftSection } from './GiftSection';
 import { Header } from './Header';
 import { InfoIcon } from './icons';
-import { Illustration } from './Illustration';
+import { Photo } from './Photo';
 import { QuestionView } from './QuestionView';
 import { ResultView } from './ResultView';
 import { useScreenHistory } from './useScreenHistory';
@@ -76,7 +76,7 @@ export function FutureApp() {
       <ResultView
         contentName="未来の健康を考える"
         heading="未来の自分に贈りたいこと"
-        illustration="future"
+        photo="future"
         result={result}
         onRetry={restart}
         labels={{ understanding: 'この結果について', gift: '今日から始められる小さな行動' }}
@@ -136,7 +136,7 @@ export function FutureApp() {
     <div className="hl-page">
       <Header title="CARD 04 ・ 未来の健康" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <Illustration name="future" className="hl-illust-hero" />
+        <Photo name="future" className="hl-photo-hero" priority />
         <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             10年後の自分に、

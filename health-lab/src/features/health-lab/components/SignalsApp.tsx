@@ -8,7 +8,7 @@ import { buildSignalsQuestions, buildSignalsResult, signalsText } from '../engin
 import { Disclaimer } from './Disclaimer';
 import { Header } from './Header';
 import { AlertIcon, CheckIcon } from './icons';
-import { Illustration } from './Illustration';
+import { Photo } from './Photo';
 import { QuestionView } from './QuestionView';
 import { ResultView, SafetyNotice } from './ResultView';
 import { useScreenHistory } from './useScreenHistory';
@@ -25,7 +25,7 @@ function SignalsComingSoon() {
     <div className="hl-page">
       <Header title="CARD 03 ・ 不調のサイン" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <Illustration name="signals" className="hl-illust-hero" />
+        <Photo name="signals" className="hl-photo-hero" priority />
         <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             その不調は、
@@ -94,7 +94,7 @@ function SignalsFlow() {
       <ResultView
         contentName="不調のサインを知る"
         heading="身体からの手紙"
-        illustration="signals"
+        photo="signals"
         result={{ ...result, safety: undefined }}
         onRetry={restart}
         labels={{
@@ -161,7 +161,7 @@ function SignalsFlow() {
     <div className="hl-page">
       <Header title="CARD 03 ・ 不調のサイン" back={ROUTES.hub} backLabel="一覧へ戻る" />
       <main className="hl-main">
-        <Illustration name="signals" className="hl-illust-hero" />
+        <Photo name="signals" className="hl-photo-hero" priority />
         <section className="hl-hero hl-hero-tight">
           <h1 className="hl-title">
             その不調は、
