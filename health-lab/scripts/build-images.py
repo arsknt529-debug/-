@@ -7,6 +7,8 @@
 - 各シーンに「どの写真の、どの部分を使うか」を SCENES で定義し、16:10 に切り出す
 - 全シーンで同じ色味になるよう、彩度・明るさ・温かみをそろえる
 - 1280x800（大）と 640x400（小）の WebP を出力する
+- 元写真のフォルダに <シーン名>.png / .jpg / .webp（画像生成AIで作った画像など）があれば、
+  SCENES の設定より優先して、その画像を中央で切り出して使う（scripts/generate-images.mjs 参照）
 - 人物が写る写真（スタッフ写真）は --include-people を付けたときだけ使う。
   付けない場合は、人物の写らない店舗写真（fallback）で代用する
 元写真を差し替え・追加したら、SCENES を編集して再実行すればすべての画像が作り直される。
@@ -66,7 +68,10 @@ def main() -> None:
     src, out = Path(args[0]), Path(args[1])
     out.mkdir(parents=True, exist_ok=True)
     for name, scene in SCENES.items():
-        if scene.get('people') and not include_people:
+        generated = next((src / f'{name}{ext}' for ext in ('.png', '.jpg', '.jpeg', '.webp') if (src / f'{name}{ext}').exists()), None)
+        if generated:
+            scene = {'source': generated.name, 'center': (0.5, 0.5), 'width': 1.0}
+        elif scene.get('people') and not include_people:
             scene = scene['fallback']
         im = Image.open(src / scene['source']).convert('RGB')
         im = grade(crop_16_10(im, scene['center'], scene['width']))

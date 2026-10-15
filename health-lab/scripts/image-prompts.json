@@ -1,0 +1,30 @@
+{
+  "_note": "シーンごとの画像生成プロンプト。style は全シーン共通で末尾に付ける。人物は実在の店舗スタッフ・お客様ではない架空の人物として生成する。",
+  "style": "Photorealistic editorial photograph for a premium boutique personal-training studio in Japan. Soft natural daylight, warm neutral palette of beige stone, light oak wood, off-white walls and sage-green plants. Calm, gentle, trustworthy, refined mood. Shallow depth of field, 35mm lens, clean composition with breathing room. Modest, elegant athleisure clothing. No text, no readable numbers, no logos, no watermarks, no heavy muscles, no harsh red or black.",
+  "scenes": {
+    "hub": {
+      "title": "私の身体を知る",
+      "prompt": "A Japanese woman in her early 30s in soft sage-green athleisure stands in a bright minimalist studio, looking at her reflection in a tall mirror with a calm, curious smile, as if getting to know her own body. Light oak floor, beige stone wall, a lush potted plant beside her."
+    },
+    "posture": {
+      "title": "骨格・姿勢を知る",
+      "prompt": "Side view of a graceful Japanese woman in her late 20s wearing light grey fitted athleisure, standing tall and relaxed in front of a pale wall with a subtle posture-assessment grid. A female trainer beside her, slightly out of focus, gently holds a tablet and observes her alignment from ear to shoulder to hip to ankle. Respectful, professional posture check, elegant and calm, bright studio light."
+    },
+    "checkup": {
+      "title": "健康診断を読み解く",
+      "prompt": "Close-up of a clean white desk in a bright, calm consultation room: a health check-up result sheet with illegible blurred figures, a silver stethoscope, a fountain pen and a small sage-green plant. A woman's hand gently points at one line on the sheet. Medical yet warm and reassuring atmosphere, white and pale sage palette, soft daylight from a window."
+    },
+    "signals": {
+      "title": "不調のサインを知る",
+      "prompt": "A Japanese woman in a cream knit sweater sits by a bright window in a cozy, plant-filled corner, eyes softly closed, one hand resting gently on her shoulder and neck, a cup of herbal tea on the wooden table beside her. Quiet moment of listening to her body, gentle afternoon light, tranquil and caring."
+    },
+    "future": {
+      "title": "未来の健康を考える",
+      "prompt": "A Japanese woman in her 30s and her mother in her 60s walk side by side along a tree-lined stone path in soft morning light, seen from behind at a slight angle, smiling at each other. Lush green leaves, warm sunlight, hopeful and peaceful, a sense of a healthy future together."
+    },
+    "gift": {
+      "title": "7日間のギフト",
+      "prompt": "Close-up of a woman's hands holding a small gift box wrapped in natural kraft paper with a sage-green ribbon, on a light oak table beside a cup of tea and a small potted plant. Soft window light, warm, gentle and minimal, a feeling of giving a small gift to oneself."
+    }
+  }
+}

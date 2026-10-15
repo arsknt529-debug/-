@@ -47,6 +47,20 @@ python3 scripts/build-images.py <元写真のフォルダ> <出力フォルダ> 
 ```
 
 どの写真のどの部分を使うかは `scripts/build-images.py` の `SCENES` で設定します。
+
+### 画像生成AIでシーン画像を作る
+
+言葉に合うイメージ画像（例：姿勢を診てもらう女性、医療を感じさせる健診の机）は、画像生成AIで作ります。
+プロンプトは `scripts/image-prompts.json`（シーン別＋全シーン共通のスタイル）で管理しています。
+
+```bash
+GEMINI_API_KEY=... node scripts/generate-images.mjs generated/          # 1シーン3案ずつ生成
+# 採用する案を generated/<シーン名>.png にリネーム（例：posture-2.png → posture.png）
+python3 scripts/build-images.py generated/ public/health-lab/images     # 色味をそろえて WebP に変換
+```
+
+`generated/` に置いた画像は、店舗写真の設定より優先して使われます。生成画像の人物は架空の人物なので、
+実在のスタッフやお客様として紹介しないでください。
 このリポジトリは公開設定のため、スタッフ（人物）写真はコミットしていません。
 
 ## 共有用プレビュー（1ファイルの HTML）
