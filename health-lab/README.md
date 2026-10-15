@@ -37,6 +37,15 @@ npm run test:e2e       # E2E（iPhone 表示、全フロー、外部通信なし
 npm run copy:export    # 監修依頼用の文言一覧 → copy-export/health-lab-copy.md
 ```
 
+## 共有用プレビュー（1ファイルの HTML）
+
+```bash
+npm run preview:build   # → preview-dist/index.html
+```
+
+本番と同じコンポーネントを1ページにまとめたものです（`next/link` などは `preview/shims/` の簡易版に置き換え、React は CDN から読み込みます）。
+「不調のサイン」も表示されます。レビュー用で、本番の配信には使いません。
+
 ## 環境変数（すべて任意）
 
 | 変数 | 既定 | 説明 |

@@ -19,7 +19,9 @@ export function useScreenHistory<T extends string>(initial: T) {
     window.history.replaceState({ ...(window.history.state ?? {}), hlScreen: initialRef.current }, '');
     const onPop = (event: PopStateEvent) => {
       const next = event.state?.hlScreen as T | undefined;
-      setScreen(next ?? initialRef.current);
+      // ページ内リンク（#record など）への移動でも popstate が発生する。その場合は画面を変えない
+      if (next === undefined) return;
+      setScreen(next);
       window.scrollTo(0, 0);
     };
     window.addEventListener('popstate', onPop);

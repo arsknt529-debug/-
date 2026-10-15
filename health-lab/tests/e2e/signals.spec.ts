@@ -37,6 +37,12 @@ test('通常の流れ：複数の症状を選び、症状別の質問に答え�
   await expect(page.getByText('最近、疲れやだるさを感じることがあるようです。')).toBeVisible();
   await expect(page.getByRole('heading', { name: '医療機関への相談が必要な場合' })).toBeVisible();
   await expect(page.getByText('60秒の健康習慣動画')).toBeVisible();
+
+  // ページ内リンクをたどっても結果画面は消えない
+  await page.getByRole('link', { name: '不調の記録方法' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: '身体からの手紙' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1, name: '身体からの手紙' })).toBeVisible();
 });
 
 test('急に悪化した場合は受診を優先し、通常コンテンツへ誘導しない', async ({ page, network }) => {
